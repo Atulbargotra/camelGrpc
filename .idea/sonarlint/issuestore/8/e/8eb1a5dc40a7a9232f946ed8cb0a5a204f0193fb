@@ -1,0 +1,9 @@
+
+t
+java:S1128"YRemove this unused import 'org.apache.camel.component.servlet.CamelHttpTransportServlet'.(æûâùÿÿÿÿ
+€
+java:S1128"jRemove this unused import 'org.apache.camel.component.servlet.springboot.ServletMappingAutoConfiguration'.(¥æ¾Í
+o
+java:S1128"YRemove this unused import 'org.springframework.boot.web.servlet.ServletRegistrationBean'.(İ­ã²
+^
+java:S1128"HRemove this unused import 'org.springframework.context.annotation.Bean'.(‚î‰Ş

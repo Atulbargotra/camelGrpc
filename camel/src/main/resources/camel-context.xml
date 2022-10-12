@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+    <bean id="pingProcessor" class="com.example.camel.processor.PingProcessor"/>
+    <bean id="orderProcessor" class="com.example.camel.processor.OrderProcessor"/>
+    <bean id="validationService" class="com.example.camel.service.ValidationService"/>
+
+    <camel:camelContext id="camel">
+<!--        ENDPOINTS-->
+        <camel:endpoint id="orderPost" uri="http://localhost:8081/camel/newOrder?bridgeEndpoint=true&amp;httpMethod=post"/>
+
+<!--        REST CONFIGURATION-->
+        <camel:restConfiguration apiContextListing="true"
+                                 bindingMode="off" component="servlet" producerComponent="http"/>
+
+<!--        REST ENDPOINTS-->
+        <camel:rest consumes="application/json" produces="application/json" path="/ping">
+            <camel:get>
+                <camel:to uri="direct:ping"/>
+            </camel:get>
+        </camel:rest>
+
+        <camel:rest consumes="application/json" produces="application/json" path="/order">
+            <camel:get>
+                <camel:param name="orderId" type="query" required="true"/>
+                <camel:param name="customerId" type="query" required="true"/>
+                <camel:param name="itemName" type="query" required="true"/>
+                <camel:param name="quantity" type="query" required="true"/>
+                <camel:param name="amount" type="query" required="true"/>
+                <camel:to uri="direct:order"/>
+            </camel:get>
+        </camel:rest>
+
+
+
+<!--        ROUTES-->
+    <camel:route>
+        <camel:from uri="direct:ping"/>
+        <camel:log message="ExchangeId: ${exchangeId}"/>
+        <camel:process ref="pingProcessor"/>
+    </camel:route>
+        <camel:route>
+            <camel:from uri="direct:order"/>
+            <camel:log message="ExchangeId: ${exchangeId}"/>
+            <camel:process ref="orderProcessor"/>
+            <camel:marshal>
+                <camel:protobuf instanceClass="com.example.camel.Order"/>
+            </camel:marshal>
+            <camel:to uri="ref:orderPost"/>
+            <camel:unmarshal>
+                <camel:protobuf instanceClass="com.example.camel.Status"/>
+            </camel:unmarshal>
+            <camel:bean ref="validationService" method="validateResponse" />
+        </camel:route>
+
+    </camel:camelContext>
+</beans>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="newOrderProcessor" class="com.example.orderservice.processor.NewOrderProcessor"/>
+
+
+    <camel:camelContext id="camel">
+        <!--        ENDPOINTS-->
+
+        <!--        REST CONFIGURATION-->
+        <camel:restConfiguration apiContextListing="true"
+                                 bindingMode="off" component="servlet" producerComponent="http"/>
+
+        <!--        REST ENDPOINTS-->
+
+        <camel:rest path="/newOrder">
+            <camel:post produces="application/json" consumes="application/json" type="com.example.camel.Order">
+                <camel:to uri="direct:newOrder"/>
+            </camel:post>
+        </camel:rest>
+
+
+
+        <!--        ROUTES-->
+        <camel:route>
+            <camel:from uri="direct:newOrder"/>
+            <camel:log message="ExchangeId: ${exchangeId}"/>
+            <camel:doTry>
+                <camel:unmarshal>
+                    <camel:protobuf instanceClass="com.example.camel.Order"/>
+                </camel:unmarshal>
+            </camel:doTry>
+            <camel:process ref="newOrderProcessor"/>
+            <camel:marshal>
+                <camel:protobuf instanceClass="com.example.camel.Status"/>
+            </camel:marshal>
+        </camel:route>
+
+    </camel:camelContext>
+</beans>

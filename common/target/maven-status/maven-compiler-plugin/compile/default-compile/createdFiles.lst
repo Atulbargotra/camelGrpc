@@ -1,0 +1,10 @@
+com\example\camel\Order$Builder.class
+com\example\camel\Order.class
+com\example\camel\OrderOrBuilder.class
+com\example\camel\Status$1.class
+com\example\camel\OrderOuterClass.class
+com\example\camel\Status.class
+com\example\camel\Order$1.class
+com\example\camel\StatusOrBuilder.class
+com\example\camel\Status$Builder.class
+com\example\camel\StatusOuterClass.class
